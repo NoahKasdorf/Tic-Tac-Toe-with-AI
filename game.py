@@ -1,4 +1,17 @@
 
+import pygame
+import sys
+
+CELL_SIZE = 200
+BOARD_SIZE = 3 * CELL_SIZE
+LINE_WIDTH = 5
+
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+RED = (255, 0, 0)
+BLUE = (0, 0, 255)
+GREEN = (0, 255, 0)
+
 
 PLAYER = 'X'
 COMPUTER = 'O'
@@ -52,9 +65,6 @@ def playerMove():
     else:
         print("That move is not available")
         playerMove()
-
-
-
 
 
 def minimax(board, depth, isMaximizing, alpha, beta):
@@ -111,32 +121,81 @@ def computerMove():
     if move != (-1, -1):
         BOARD[move[0]][move[1]] = COMPUTER
 
-def playGame():
-    printBoard(BOARD)
-    
-    print("--------")
-    
-    while isMoveAvailable(BOARD):
-        playerMove()
-        printBoard(BOARD)
-        
-        print("--------")
-        
-        if checkWinner(BOARD,PLAYER):
-            print("You win!")
-            return
-        
-        if not isMoveAvailable(BOARD):
-            break
-        
-        computerMove()
-        printBoard(BOARD)
 
-        print("--------")
-        if checkWinner(BOARD, COMPUTER):
-            print("Computer wins!")
-            return
+def drawBoard(screen, font):
+    screen.fill(WHITE)
+    for i in range(1, 3):
+        pygame.draw.line(screen, BLACK, (0, i * CELL_SIZE), (BOARD_SIZE, i * CELL_SIZE), LINE_WIDTH)
+        pygame.draw.line(screen, BLACK, (i * CELL_SIZE, 0), (i * CELL_SIZE, BOARD_SIZE), LINE_WIDTH)
+
+    for row in range(3):
+        for col in range(3):
+            center_x = col * CELL_SIZE + CELL_SIZE // 2
+            center_y = row * CELL_SIZE + CELL_SIZE // 2
+            if BOARD[row][col] == PLAYER:
+                text = font.render(PLAYER, True, RED)
+                screen.blit(text, text.get_rect(center=(center_x, center_y)))
+            elif BOARD[row][col] == COMPUTER:
+                text = font.render(COMPUTER, True, BLACK)
+                screen.blit(text, text.get_rect(center=(center_x, center_y)))
+
+def playGame():
+    pygame.init()
+    screen = pygame.display.set_mode((BOARD_SIZE, BOARD_SIZE))
+    pygame.display.set_caption("Tic-Tac-Toe")
     
-    print("It's a draw!")
+    font = pygame.font.Font(None, 72)
+    
+    running = True
+    player_turn = True
+    
+    while running:
+        drawBoard(screen, font)
+        pygame.display.flip()
+        
+        pygame.time.wait(500)
+        
+        if checkWinner(BOARD, PLAYER):
+            screen.fill(BLACK)
+            text = font.render("You win!", True, GREEN)
+            screen.blit(text, text.get_rect(center=(BOARD_SIZE // 2, BOARD_SIZE // 2)))
+            pygame.display.flip()
+            pygame.time.wait(2000)
+            
+        elif checkWinner(BOARD, COMPUTER):
+            screen.fill(BLACK)
+            text = font.render("You Lose!", True, GREEN)
+            screen.blit(text, text.get_rect(center=(BOARD_SIZE // 2, BOARD_SIZE // 2)))
+            pygame.display.flip()
+            pygame.time.wait(2000)
+            
+        elif not isMoveAvailable(BOARD):
+            screen.fill(BLACK)
+            text = font.render("Draw!", True, GREEN)
+            screen.blit(text, text.get_rect(center=(BOARD_SIZE // 2, BOARD_SIZE // 2)))
+            pygame.display.flip()
+            pygame.time.wait(2000)
+        
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+                sys.exit()
+
+            if event.type == pygame.MOUSEBUTTONDOWN and player_turn:
+                x, y = event.pos
+                row, col = y // CELL_SIZE, x // CELL_SIZE
+                if canMakeMove(row, col):
+                    BOARD[row][col] = PLAYER
+                    player_turn = False
+        
+        drawBoard(screen, font)
+        pygame.display.flip()
+
+        if not player_turn:
+            pygame.time.wait(500)
+            computerMove()
+            player_turn = True
+    
+
 
 playGame()
