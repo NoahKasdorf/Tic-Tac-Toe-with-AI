@@ -2,20 +2,8 @@
 import pygame
 import sys
 
-CELL_SIZE = 200
-BOARD_SIZE = 3 * CELL_SIZE
-LINE_WIDTH = 5
+from constants import *
 
-WHITE = (255, 255, 255)
-BLACK = (0, 0, 0)
-RED = (255, 0, 0)
-BLUE = (0, 0, 255)
-GREEN = (0, 255, 0)
-
-
-PLAYER = 'X'
-COMPUTER = 'O'
-EMPTY = ' '
 
 BOARD = [
     [EMPTY, EMPTY, EMPTY],
